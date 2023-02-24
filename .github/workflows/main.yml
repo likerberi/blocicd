@@ -1,5 +1,5 @@
 on: push
-name: Test, Build and Release APK
+name: git actions test
 jobs:
   build:
     name: Build APK
@@ -13,5 +13,4 @@ jobs:
         with:
           flutter-version: '3.0.4'
       - run: flutter pub get
-      - run: flutter create .
-      - run: flutter run -d chrome
+      - run: flutter run
