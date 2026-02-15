@@ -1,0 +1,8 @@
+export enum ProposalStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+  CHATTING = 'CHATTING',
+  FINAL_HIRED = 'FINAL_HIRED',
+}

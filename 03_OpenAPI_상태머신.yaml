@@ -1,0 +1,423 @@
+openapi: 3.0.3
+info:
+  title: Hiring Proposal Platform API
+  version: 1.0.0
+  description: |
+    제안형 채용 플랫폼 MVP API 초안.
+    정책 핵심: 구직자 수락 전에는 채팅 미개설, 최종합격 전 연락처 비공개.
+servers:
+  - url: https://api.example.com
+tags:
+  - name: Auth
+  - name: JobSeeker
+  - name: Company
+  - name: Proposal
+  - name: Chat
+  - name: Admin
+paths:
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: 회원가입
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: Created
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: 로그인
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: 리프레시 토큰으로 재발급
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: 로그아웃(리프레시 토큰 무효화)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+  /jobseekers/profile:
+    put:
+      tags: [JobSeeker]
+      summary: 구직자 프로필 등록/수정
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobSeekerProfileUpsertRequest'
+      responses:
+        '200':
+          description: OK
+  /jobseekers/proposals:
+    get:
+      tags: [JobSeeker]
+      summary: 구직자 제안 목록 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/ProposalStatus'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProposalSummary'
+  /companies/verification:
+    post:
+      tags: [Company]
+      summary: 기업 인증 신청
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyVerificationRequest'
+      responses:
+        '201':
+          description: Created
+  /talents/search:
+    get:
+      tags: [Company]
+      summary: 익명 구직자 검색
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: minSalary
+          schema: { type: integer }
+        - in: query
+          name: maxSalary
+          schema: { type: integer }
+        - in: query
+          name: location
+          schema: { type: string }
+        - in: query
+          name: jobCategory
+          schema: { type: string }
+        - in: query
+          name: minExperience
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnonymousTalentProfile'
+  /proposals:
+    post:
+      tags: [Proposal]
+      summary: 채용 제안 발송
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProposalRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalSummary'
+  /proposals/{proposalId}/accept:
+    post:
+      tags: [Proposal]
+      summary: 구직자 제안 수락 (채팅방 생성 트리거)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: proposalId
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: Accepted
+  /proposals/{proposalId}/reject:
+    post:
+      tags: [Proposal]
+      summary: 구직자 제안 거절
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: proposalId
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: Rejected
+  /hires/{proposalId}/finalize:
+    post:
+      tags: [Company]
+      summary: 최종 합격 처리 (연락처 공개 트리거)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: proposalId
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: Finalized
+  /chat/rooms:
+    get:
+      tags: [Chat]
+      summary: 채팅방 목록
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+  /chat/rooms/{roomId}/messages:
+    get:
+      tags: [Chat]
+      summary: 채팅 메시지 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: roomId
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [Chat]
+      summary: 메시지 전송
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: roomId
+          required: true
+          schema: { type: integer, format: int64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageRequest'
+      responses:
+        '201':
+          description: Created
+  /admin/dashboard:
+    get:
+      tags: [Admin]
+      summary: 관리자 KPI 대시보드
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SignUpRequest:
+      type: object
+      required: [role, email, password]
+      properties:
+        role:
+          $ref: '#/components/schemas/UserRole'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    AuthToken:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+    JobSeekerProfileUpsertRequest:
+      type: object
+      required: [jobCategory, yearsExperience, desiredSalaryMin, desiredSalaryMax, desiredLocations]
+      properties:
+        jobCategory: { type: string }
+        yearsExperience: { type: integer, minimum: 0, maximum: 40 }
+        desiredSalaryMin: { type: integer, minimum: 0 }
+        desiredSalaryMax: { type: integer, minimum: 0 }
+        desiredLocations:
+          type: array
+          items: { type: string }
+        skills:
+          type: array
+          items: { type: string }
+        introText: { type: string, maxLength: 2000 }
+    CompanyVerificationRequest:
+      type: object
+      required: [companyName, businessRegistrationNo, domainEmail]
+      properties:
+        companyName: { type: string }
+        businessRegistrationNo: { type: string }
+        domainEmail: { type: string, format: email }
+        documentUrl: { type: string, format: uri }
+    CreateProposalRequest:
+      type: object
+      required: [companyProfileId, jobSeekerProfileId, positionTitle, offerSalaryMin, offerSalaryMax, message, expiresAt]
+      properties:
+        companyProfileId: { type: integer, format: int64 }
+        jobSeekerProfileId: { type: integer, format: int64 }
+        positionTitle: { type: string }
+        offerSalaryMin: { type: integer, minimum: 0 }
+        offerSalaryMax: { type: integer, minimum: 0 }
+        workType: { type: string, enum: [ONSITE, HYBRID, REMOTE] }
+        message: { type: string, maxLength: 5000 }
+        expiresAt: { type: string, format: date-time }
+    ChatMessageRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          maxLength: 3000
+    ProposalSummary:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        positionTitle: { type: string }
+        status:
+          $ref: '#/components/schemas/ProposalStatus'
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+    AnonymousTalentProfile:
+      type: object
+      properties:
+        profileId: { type: integer, format: int64 }
+        jobCategory: { type: string }
+        yearsExperience: { type: integer }
+        desiredSalaryMin: { type: integer }
+        desiredSalaryMax: { type: integer }
+        desiredLocations:
+          type: array
+          items: { type: string }
+        maskedCareerSummary:
+          type: string
+    UserRole:
+      type: string
+      enum: [JOB_SEEKER, COMPANY_USER, ADMIN]
+    ProposalStatus:
+      type: string
+      enum: [PENDING, ACCEPTED, REJECTED, EXPIRED, CHATTING, FINAL_HIRED]
+
+x-state-machines:
+  proposal:
+    initial: PENDING
+    states:
+      - PENDING
+      - ACCEPTED
+      - REJECTED
+      - EXPIRED
+      - CHATTING
+      - FINAL_HIRED
+    transitions:
+      - from: PENDING
+        to: ACCEPTED
+        event: JOB_SEEKER_ACCEPT
+        action: CREATE_CHAT_ROOM
+      - from: PENDING
+        to: REJECTED
+        event: JOB_SEEKER_REJECT
+      - from: PENDING
+        to: EXPIRED
+        event: SYSTEM_EXPIRE
+      - from: ACCEPTED
+        to: CHATTING
+        event: FIRST_MESSAGE_SENT
+      - from: CHATTING
+        to: FINAL_HIRED
+        event: COMPANY_FINALIZE_HIRE
+        action: UNMASK_CONTACT_AND_LOG
+  privacy:
+    rules:
+      - name: PRE_ACCEPT_ANONYMIZATION
+        condition: proposal.status in [PENDING]
+        visibleFields: [jobCategory, yearsExperience, skills, desiredSalaryRange, desiredLocation]
+      - name: POST_ACCEPT_CHAT_ONLY
+        condition: proposal.status in [ACCEPTED, CHATTING]
+        visibleFields: [same_as_above]
+      - name: POST_FINAL_HIRE_CONTACT_OPEN
+        condition: proposal.status == FINAL_HIRED
+        visibleFields: [all_required_fields_including_contact]
+        mandatoryAuditEvent: VIEW_CONTACT
