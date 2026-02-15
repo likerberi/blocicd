@@ -1,0 +1,228 @@
+:root {
+  --bg-0: #f5efe5;
+  --bg-1: #fdf9f1;
+  --ink: #1a1a1a;
+  --muted: #5f5d57;
+  --primary: #0f5f4f;
+  --primary-2: #0a463a;
+  --accent: #cc5e17;
+  --line: #d8cebf;
+  --card: #fffcf7;
+  --ok: #1f8a4c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Avenir Next", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  background:
+    radial-gradient(1000px 500px at -10% -20%, #f4dbc3 0%, transparent 60%),
+    radial-gradient(900px 400px at 110% 120%, #d7ede7 0%, transparent 60%),
+    var(--bg-0);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-1), white 40%);
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.menu {
+  display: flex;
+  gap: 14px;
+  font-weight: 600;
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+
+.hero .splash h1 {
+  margin: 4px 0 10px;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.05;
+}
+
+.hero .splash p {
+  max-width: 760px;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+.sub,
+.meta {
+  color: var(--muted);
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.proposal {
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.proposal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+}
+
+.badge.primary {
+  color: var(--primary-2);
+  background: #d9f2ed;
+  border-color: #b3e2d8;
+}
+
+.badge.warning {
+  color: #714002;
+  background: #ffe6bf;
+  border-color: #f2c27f;
+}
+
+.badge.success {
+  color: #0f6937;
+  background: #d9f7e5;
+  border-color: #aeeac7;
+}
+
+.badge.muted {
+  color: #4b4b4b;
+  background: #efefef;
+  border-color: #dbdbdb;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.btn.ghost {
+  color: var(--accent);
+}
+
+label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.company {
+  grid-template-columns: 1fr;
+}
+
+.kpi-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.kpi {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: white;
+}
+
+.kpi span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.kpi strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 24px;
+}
+
+.ok {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+@media (min-width: 900px) {
+  .company {
+    grid-template-columns: 1fr 1fr;
+  }
+}
