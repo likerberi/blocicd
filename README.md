@@ -1,4 +1,1 @@
-This repository is for practicing webGL.
-
--. opencl, opengl
--. three.js
+3년을 거슬러 업데이트.
